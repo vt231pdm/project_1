@@ -1,0 +1,85 @@
+:root {
+  --primary: #e67700;
+  --primary-hover: #f08800;
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #444;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --danger: #ef4444;
+  --radius: 10px;
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  --transition: all 0.25s ease-in-out;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.container {
+  width: 100%;
+  padding: 0 16px;
+  margin: 0 auto;
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+    padding: 0 24px;
+  }
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+/* Базові CSS-анімації */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card,
+.cart-item,
+.empty-state {
+  animation: fadeIn 0.3s ease-in-out;
+}

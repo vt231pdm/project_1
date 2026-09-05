@@ -1,0 +1,103 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: var(--transition);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
+}
+
+.card__favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+  /* ГОЛОВНІ ВИПРАВЛЕННЯ: */
+  z-index: 10; /* гарантує розміщення поверх картинки */
+  transform: translateZ(0); /* запобігає зникненню при CSS-трансформаціях */
+}
+
+.card__favorite-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  pointer-events: none; /* щоб кліки проходили прямо в кнопку */
+  transition: transform 0.2s ease;
+}
+
+.card__favorite-btn:hover {
+  background-color: #ffffff;
+  transform: scale(1.1);
+}
+
+.card__image-wrap {
+  width: 100%;
+  height: 220px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  background-color: var(--bg-page);
+}
+
+.card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition);
+}
+
+.card:hover .card__image {
+  transform: scale(1.04);
+}
+
+.card__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.card__author {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.card__footer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.card__price {
+  font-size: 1.1rem;
+  font-weight: 700;
+}

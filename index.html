@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BookStore — Каталог книг</title>
+
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components/card.css" />
+    <link rel="stylesheet" href="css/components/filters.css" />
+    <link rel="stylesheet" href="css/components/buttons.css" />
+  </head>
+  <body>
+    <header class="header"></header>
+
+    <main class="main container">
+      <div class="content-layout">
+        <!-- ЛІВА ЧАСТИНА: Панель фільтрів -->
+        <aside class="sidebar-filters">
+          <form class="filters-form" id="filters-form">
+            <div class="filters-form__header">
+              <h2 class="filters-form__title">Фільтр</h2>
+              <button
+                type="reset"
+                id="reset-filters"
+                class="filters-form__reset"
+              >
+                Скинути
+              </button>
+            </div>
+
+            <!-- Сортування -->
+            <div class="filter-group">
+              <label for="sort-select" class="filter-group__label"
+                >Сортування</label
+              >
+              <select id="sort-select" class="filter-select">
+                <option value="default">За замовчуванням</option>
+                <option value="price-asc">Від дешевих до дорогих</option>
+                <option value="price-desc">Від дорогих до дешевих</option>
+                <option value="title-asc">За назвою (А-Я)</option>
+              </select>
+            </div>
+
+            <!-- Фільтрація за ціною -->
+            <div class="filter-group">
+              <span class="filter-group__label">Ціна (грн)</span>
+              <div class="price-range">
+                <input type="number" id="price-min" placeholder="Від" min="0" />
+                <span>—</span>
+                <input type="number" id="price-max" placeholder="До" min="0" />
+              </div>
+            </div>
+          </form>
+        </aside>
+
+        <!-- ПРАВА ЧАСТИНА: Сітка товарів -->
+        <section class="catalog">
+          <div class="catalog__header">
+            <h1 class="catalog__title">Каталог книг</h1>
+            <span class="catalog__count" id="catalog-count">Знайдено: 0</span>
+          </div>
+
+          <div class="catalog__grid" id="catalog-grid"></div>
+
+          <div class="catalog__empty is-hidden" id="catalog-empty">
+            <p>За вашим запитом нічого не знайдено 😕</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer"></footer>
+
+    <script type="module" src="js/pages/main.js"></script>
+  </body>
+</html>

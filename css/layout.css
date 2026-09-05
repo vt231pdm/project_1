@@ -1,0 +1,273 @@
+/* HEADER: Мобільний за замовчуванням */
+.header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header__container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Іконка логотипу */
+.logo__icon-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* Іконки в навігації та пошуку */
+.icon-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.icon-img--search {
+  width: 18px;
+  height: 18px;
+  opacity: 0.7;
+  transition: var(--transition);
+}
+
+.search-bar__button:hover .icon-img--search {
+  opacity: 1;
+}
+
+/* Порожні блоки */
+.empty-state__icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.empty-state__img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  opacity: 0.6;
+}
+
+.search-bar {
+  order: 3;
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-bar__input {
+  width: 100%;
+  padding: 8px 36px 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-page);
+  outline: none;
+  transition: var(--transition);
+}
+
+.search-bar__input:focus {
+  border-color: var(--primary);
+  background: var(--bg-card);
+}
+
+.search-bar__icon {
+  width: 20px;
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  position: relative;
+}
+
+.nav-button__text {
+  display: none; /* Приховано на мобільних */
+}
+
+.nav-button:hover,
+.nav-button.active {
+  background-color: var(--bg-page);
+  color: var(--primary);
+}
+
+.nav-button__icon {
+  width: 20px;
+}
+
+/* MAIN ТА CONTENT: Mobile First */
+.main {
+  flex: 1;
+  padding-top: 20px;
+  padding-bottom: 32px;
+}
+
+.content-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.back-link {
+  color: var(--primary);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.catalog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.catalog__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.catalog__count {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.catalog__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Empty State */
+.empty-state,
+.catalog__empty {
+  text-align: center;
+  padding: 36px 16px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  margin-top: 16px;
+}
+
+.empty-state__icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.empty-state__title {
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+}
+
+.empty-state__description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+
+/* FOOTER */
+.footer {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  padding: 20px 0;
+  margin-top: auto;
+}
+
+.footer__container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* --- АДАПТИВНІСТЬ: Планшети (min-width: 640px) --- */
+@media (min-width: 640px) {
+  .catalog__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .nav-button__text {
+    display: inline;
+  }
+}
+
+/* --- АДАПТИВНІСТЬ: Десктопи (min-width: 992px) --- */
+@media (min-width: 992px) {
+  .header__container {
+    flex-wrap: nowrap;
+    height: 70px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .search-bar {
+    order: 0;
+    max-width: 480px;
+  }
+
+  .content-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr; /* Зліва фільтр, справа сітка товарів */
+    gap: 32px;
+    align-items: start;
+  }
+
+  .catalog__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .footer__container {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
