@@ -1,12 +1,45 @@
-export function renderFooter() {
-  const footer = document.querySelector("footer");
+export function createFooter() {
+  const footer = document.querySelector(".footer");
 
-  footer.innerHTML = `
-      <div class="container footer__container">
-        <p class="footer__copyright">© 2026 BookStore. Усі права захищені.</p>
-        <div class="footer__contacts">
-          <span>Контакти: info@bookstore.ua</span>
-        </div>
-      </div>
-  `;
+  if (!footer) {
+    return;
+  }
+
+  const container = document.createElement("div");
+
+  container.className = "footer__container container";
+
+  const top = document.createElement("div");
+
+  top.className = "footer__top";
+
+  const logo = document.createElement("a");
+
+  logo.className = "footer__logo";
+  logo.href = "index.html";
+  logo.textContent = "BookStore";
+
+  const description = document.createElement("p");
+
+  description.className = "footer__description";
+
+  description.textContent = "Книги, які хочеться читати.";
+
+  top.append(logo, description);
+
+  const bottom = document.createElement("div");
+
+  bottom.className = "footer__bottom";
+
+  const text = document.createElement("p");
+
+  text.className = "footer__text";
+
+  text.textContent = `© ${new Date().getFullYear()} BookStore. Навчальний проєкт.`;
+
+  bottom.append(text);
+
+  container.append(top, bottom);
+
+  footer.replaceChildren(container);
 }

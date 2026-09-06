@@ -1,103 +1,200 @@
+.catalog__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
+  position: relative;
   display: flex;
   flex-direction: column;
-  position: relative;
-  transition: var(--transition);
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-  border-color: var(--primary);
-}
-
-.card__favorite-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  transition: var(--transition);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-
-  /* ГОЛОВНІ ВИПРАВЛЕННЯ: */
-  z-index: 10; /* гарантує розміщення поверх картинки */
-  transform: translateZ(0); /* запобігає зникненню при CSS-трансформаціях */
-}
-
-.card__favorite-icon {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  pointer-events: none; /* щоб кліки проходили прямо в кнопку */
-  transition: transform 0.2s ease;
-}
-
-.card__favorite-btn:hover {
-  background-color: #ffffff;
-  transform: scale(1.1);
+  transform: translateY(-3px);
+  border-color: #d7d4cf;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.09);
 }
 
 .card__image-wrap {
-  width: 100%;
-  height: 220px;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 12px;
-  background-color: var(--bg-page);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 310px;
+  padding: 22px;
+
+  background: linear-gradient(145deg, #fafaf8, #f1f0ed);
 }
 
 .card__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: var(--transition);
+  width: auto;
+  max-width: 80%;
+  height: 255px;
+
+  object-fit: contain;
+  filter: drop-shadow(0 12px 12px rgba(0, 0, 0, 0.13));
+
+  transition: transform 0.25s ease;
 }
 
 .card:hover .card__image {
-  transform: scale(1.04);
+  transform: translateY(-4px) rotate(-1deg);
 }
 
+/* FAVORITE BUTTON */
+.card__favorite-btn {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+  padding: 9px;
+
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+
+.card__favorite-btn:hover {
+  transform: scale(1.06);
+  background: var(--accent-soft);
+}
+
+.card__favorite-btn.is-active {
+  background: var(--accent-soft);
+}
+
+.card__favorite-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* CARD CONTENT */
 .card__content {
   display: flex;
-  flex-direction: column;
   flex: 1;
+  flex-direction: column;
+  padding: 15px;
 }
 
 .card__title {
-  font-size: 0.95rem;
-  font-weight: 600;
+  display: -webkit-box;
+  margin: 0 0 5px;
+  overflow: hidden;
+
+  font-size: 16px;
+  font-weight: 800;
   line-height: 1.3;
-  margin-bottom: 4px;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .card__author {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 12px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .card__footer {
-  margin-top: auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 8px;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-top: auto;
+  padding-top: 16px;
 }
 
 .card__price {
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.card__price::after {
+  content: " грн";
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* АДАПТИВНІСТЬ КАРТКИ */
+@media (min-width: 600px) {
+  .catalog__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .card__image-wrap {
+    min-height: 280px;
+  }
+
+  .card__image {
+    height: 225px;
+  }
+
+  .card__footer {
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .card__footer .btn {
+    flex: 0 0 auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .catalog__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .card__image-wrap {
+    min-height: 300px;
+    padding: 25px;
+  }
+
+  .card__image {
+    height: 255px;
+  }
+
+  .card__content {
+    padding: 17px 18px 18px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .card:hover {
+    transform: translateY(-4px);
+  }
 }

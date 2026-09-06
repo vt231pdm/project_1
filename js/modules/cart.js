@@ -1,54 +1,104 @@
-import { storage } from "./storage.js";
-import { ui } from "./ui.js";
+import { storage, MAX_QUANTITY } from "./storage.js";
 
 export const cart = {
   addItem(bookId) {
-    const cartItems = storage.getCart();
-    const existing = cartItems.find((item) => item.id === bookId);
+    const id = Number(bookId);
 
-    if (existing) {
-      existing.quantity += 1; // Збільшення на одиницю при повторному натисканні
-    } else {
-      cartItems.push({ id: bookId, quantity: 1 });
+    if (!Number.isInteger(id) || id <= 0) {
+      return false;
     }
 
-    storage.saveCart(cartItems);
-    ui.updateBadges(); // Миттєве оновлення лічильника
+    const items = storage.getCart();
+
+    const existing = items.find((item) => item.id === id);
+
+    if (existing) {
+      existing.quantity = Math.min(existing.quantity + 1, MAX_QUANTITY);
+    } else {
+      items.push({
+        id,
+        quantity: 1,
+      });
+    }
+
+    storage.saveCart(items);
+
+    return true;
   },
 
   updateQuantity(bookId, delta) {
-    let cartItems = storage.getCart();
-    const item = cartItems.find((i) => i.id === bookId);
-    if (!item) return;
+    const id = Number(bookId);
+    const change = Number(delta);
 
-    item.quantity += delta;
-    if (item.quantity <= 0) {
-      cartItems = cartItems.filter((i) => i.id !== bookId);
+    if (!Number.isInteger(id) || !Number.isInteger(change) || change === 0) {
+      return false;
     }
 
-    storage.saveCart(cartItems);
-    ui.updateBadges();
+    const items = storage.getCart();
+
+    const item = items.find((entry) => entry.id === id);
+
+    if (!item) {
+      return false;
+    }
+
+    item.quantity += change;
+
+    const nextItems =
+      item.quantity <= 0
+        ? items.filter((entry) => entry.id !== id)
+        : items.map((entry) =>
+            entry.id === id
+              ? {
+                  ...entry,
+                  quantity: Math.min(entry.quantity, MAX_QUANTITY),
+                }
+              : entry,
+          );
+
+    storage.saveCart(nextItems);
+
+    return true;
   },
 
   removeItem(bookId) {
-    const cartItems = storage.getCart().filter((item) => item.id !== bookId);
-    storage.saveCart(cartItems);
-    ui.updateBadges();
+    const id = Number(bookId);
+
+    if (!Number.isInteger(id)) {
+      return false;
+    }
+
+    const nextItems = storage.getCart().filter((item) => item.id !== id);
+
+    storage.saveCart(nextItems);
+
+    return true;
+  },
+
+  clear() {
+    storage.clearCart();
   },
 
   calculateTotals(booksList) {
-    const cartItems = storage.getCart();
+    const booksById = new Map(booksList.map((book) => [book.id, book]));
+
     let totalCount = 0;
     let totalPrice = 0;
 
-    cartItems.forEach((cartItem) => {
-      const book = booksList.find((b) => b.id === cartItem.id);
-      if (book) {
-        totalCount += cartItem.quantity;
-        totalPrice += book.price * cartItem.quantity;
-      }
-    });
+    for (const item of storage.getCart()) {
+      const book = booksById.get(item.id);
 
-    return { totalCount, totalPrice };
+      if (!book) {
+        continue;
+      }
+
+      totalCount += item.quantity;
+      totalPrice += book.price * item.quantity;
+    }
+
+    return {
+      totalCount,
+      totalPrice,
+    };
   },
 };

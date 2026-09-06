@@ -3,35 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Кошик BookStore" />
     <title>BookStore — Кошик</title>
-
-    <link rel="stylesheet" href="css/base.css" />
-    <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/components/cart-item.css" />
-    <link rel="stylesheet" href="css/components/buttons.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" type="image/png" href="img/icons/book.png" />
   </head>
+
   <body>
     <header class="header"></header>
 
     <main class="main container">
       <div class="page-header">
         <h1 class="page-title">Ваш кошик</h1>
-        <a href="index.html" class="back-link">← Продовжити вибір</a>
+
+        <a href="index.html" class="back-link"> ← Продовжити вибір </a>
       </div>
 
       <div class="cart-layout" id="cart-content">
-        <section class="cart-items" id="cart-items-container"></section>
+        <section
+          class="cart-items"
+          id="cart-items-container"
+          aria-label="Товари в кошику"
+        ></section>
 
-        <aside class="cart-summary">
+        <aside class="cart-summary" aria-label="Підсумок замовлення">
           <h2 class="cart-summary__title">Підсумок замовлення</h2>
+
           <div class="cart-summary__row">
             <span>Кількість товарів:</span>
             <span id="summary-total-count">0 шт.</span>
           </div>
+
           <div class="cart-summary__row cart-summary__row--total">
             <span>Разом:</span>
             <span id="summary-total-price">0 грн</span>
           </div>
+
           <button
             type="button"
             class="btn btn--primary btn--block"
@@ -42,19 +49,22 @@
         </aside>
       </div>
 
-      <div class="empty-state is-hidden" id="cart-empty">
+      <div class="empty-state is-hidden" id="cart-empty" role="status">
         <div class="empty-state__icon-wrap">
           <img
             src="img/icons/shopping-cart.png"
-            alt="Кошик"
+            alt=""
             class="empty-state__img"
           />
         </div>
+
         <h2 class="empty-state__title">Ваш кошик порожній</h2>
+
         <p class="empty-state__description">
           Додайте потрібні книги з каталогу або зі списку улюбленого.
         </p>
-        <a href="index.html" class="btn btn--primary">До каталогу</a>
+
+        <a href="index.html" class="btn btn--primary"> До каталогу </a>
       </div>
     </main>
 

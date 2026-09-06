@@ -1,15 +1,25 @@
+function normalize(value) {
+  return String(value ?? "")
+    .trim()
+    .toLocaleLowerCase("uk-UA");
+}
+
 export const search = {
   byQuery(booksList, query) {
-    if (!query || query.trim() === "") {
-      return booksList; // Якщо поле порожнє, повертаємо весь масив
+    const normalizedQuery = normalize(query);
+
+    if (!normalizedQuery) {
+      return [...booksList];
     }
 
-    const q = query.toLowerCase().trim();
+    return booksList.filter((book) => {
+      const title = normalize(book.title);
 
-    return booksList.filter(
-      (book) =>
-        book.title.toLowerCase().includes(q) ||
-        book.author.toLowerCase().includes(q),
-    );
+      const author = normalize(book.author);
+
+      return (
+        title.includes(normalizedQuery) || author.includes(normalizedQuery)
+      );
+    });
   },
 };

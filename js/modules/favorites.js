@@ -1,20 +1,27 @@
 import { storage } from "./storage.js";
-import { ui } from "./ui.js";
 
 export const favorites = {
   isFavorite(bookId) {
-    return storage.getFavorites().includes(bookId);
+    const id = Number(bookId);
+
+    return storage.getFavorites().includes(id);
   },
 
   toggle(bookId) {
-    let favs = storage.getFavorites();
-    if (favs.includes(bookId)) {
-      favs = favs.filter((id) => id !== bookId);
-    } else {
-      favs.push(bookId);
+    const id = Number(bookId);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return false;
     }
-    storage.saveFavorites(favs);
-    ui.updateBadges();
-    return favs.includes(bookId);
+
+    const current = storage.getFavorites();
+
+    const next = current.includes(id)
+      ? current.filter((itemId) => itemId !== id)
+      : [...current, id];
+
+    storage.saveFavorites(next);
+
+    return next.includes(id);
   },
 };

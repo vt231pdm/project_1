@@ -1,43 +1,133 @@
-export function renderHeader({ showSearch = false } = {}) {
-  const header = document.querySelector("header");
+import { ui } from "../modules/ui.js";
 
-  header.innerHTML = `
-      <div class="container header__container">
-        <a href="index.html" class="logo">
-          <img src="img/icons/book.png" alt="BookStore" class="logo__icon-img">
-          <span>BookStore</span> 
-        </a>
+function createNavLink({ href, label, icon, badgeId, badgeLabel }) {
+  const link = document.createElement("a");
 
-        ${
-          showSearch
-            ? `<div class="search-bar">
-          <input
-            type="text"
-            id="search-input"
-            class="search-bar__input"
-            placeholder="Пошук за назвою або автором..."
-            autocomplete="off"
-          />
-          <button type="button" class="search-bar__button" aria-label="Знайти">
-                <img src="img/icons/search.png" alt="Пошук" class="icon-img icon-img--search">
-              </button>
-          
-          </div>`
-            : ""
-        } 
-        
-        <nav class="header__nav">
-          <a href="favorites.html" class="nav-button" title="Улюблені">
-            <img src="/img/icons/heart.png" alt="Улюблені" class="icon-img nav-button__icon-img"/>
-            <span class="nav-button__text">Улюблені</span>
-            <span class="badge" id="favorites-badge">0</span>
-          </a>
-          <a href="cart.html" class="nav-button" title="Кошик">
-            <img src="/img/icons/shopping-cart.png" alt="Кошик" class="icon-img nav-button__icon-img"/>
-            <span class="nav-button__text">Кошик</span>
-            <span class="badge" id="cart-badge">0</span>
-          </a>
-        </nav>
-      </div>
-  `;
+  link.className = "nav-button";
+  link.href = href;
+  link.setAttribute("aria-label", label);
+
+  const iconElement = document.createElement("img");
+
+  iconElement.className = "nav-button__icon-img";
+  iconElement.src = icon;
+  iconElement.alt = "";
+
+  link.append(iconElement);
+
+  if (badgeId) {
+    const badge = document.createElement("span");
+
+    badge.className = "nav-button__badge";
+    badge.id = badgeId;
+    badge.textContent = "0";
+    badge.setAttribute("aria-label", badgeLabel);
+
+    link.append(badge);
+  }
+
+  return link;
+}
+
+export function createHeader() {
+  const header = document.querySelector(".header");
+
+  if (!header) {
+    return;
+  }
+
+  const container = document.createElement("div");
+
+  container.className = "header__container container";
+
+  /*
+   * Logo
+   */
+
+  const logo = document.createElement("a");
+
+  logo.className = "logo";
+  logo.href = "index.html";
+  logo.textContent = "BookStore";
+  logo.setAttribute("aria-label", "BookStore — головна");
+
+  /*
+   * Search
+   */
+
+  const searchWrapper = document.createElement("div");
+
+  searchWrapper.className = "header__search";
+
+  const search = document.createElement("input");
+
+  search.className = "search-input";
+  search.type = "";
+  search.id = "search-input";
+  search.placeholder = "Знайти книгу або автора...";
+  search.setAttribute("aria-label", "Пошук книг");
+
+  const searchIcon = document.createElement("span");
+
+  searchIcon.className = "search-input__icon";
+  searchIcon.textContent = "⌕";
+  searchIcon.setAttribute("aria-hidden", "true");
+
+  const clearButton = document.createElement("button");
+
+  clearButton.className = "search-clear";
+  clearButton.type = "button";
+  clearButton.textContent = "×";
+  clearButton.setAttribute("aria-label", "Очистити пошук");
+
+  clearButton.addEventListener("click", () => {
+    search.value = "";
+
+    search.dispatchEvent(
+      new Event("input", {
+        bubbles: true,
+      }),
+    );
+
+    search.focus();
+  });
+
+  searchWrapper.append(search, searchIcon, clearButton);
+
+  /*
+   * Navigation
+   */
+
+  const nav = document.createElement("nav");
+
+  nav.className = "header__nav";
+  nav.setAttribute("aria-label", "Основна навігація");
+
+  nav.append(
+    createNavLink({
+      href: "favorites.html",
+      label: "Улюблені книги",
+      icon: ui.icons.heart,
+      badgeId: "favorites-badge",
+      badgeLabel: "Кількість улюблених книг",
+    }),
+
+    createNavLink({
+      href: "cart.html",
+      label: "Кошик",
+      icon: ui.icons.cart,
+      badgeId: "cart-badge",
+      badgeLabel: "Кількість товарів у кошику",
+    }),
+  );
+
+  container.append(logo, searchWrapper, nav);
+
+  header.replaceChildren(container);
+
+  ui.updateBadges();
+
+  return {
+    searchInput: search,
+  };
 }

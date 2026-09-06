@@ -1,71 +1,119 @@
-import { renderFooter } from "../components/footer.js";
-import { renderHeader } from "../components/header.js";
 import { books } from "../data/books.js";
-import { storage } from "../modules/storage.js";
 import { cart } from "../modules/cart.js";
+import { storage } from "../modules/storage.js";
 import { ui } from "../modules/ui.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderHeader();
-  renderFooter();
+import { createHeader } from "../components/header.js";
+import { createFooter } from "../components/footer.js";
 
-  ui.updateBadges();
+const content = document.getElementById("cart-content");
 
-  const cartContent = document.getElementById("cart-content");
-  const itemsContainer = document.getElementById("cart-items-container");
-  const emptyState = document.getElementById("cart-empty");
-  const totalCountEl = document.getElementById("summary-total-count");
-  const totalPriceEl = document.getElementById("summary-total-price");
-  const checkoutBtn = document.getElementById("checkout-button");
+const itemsContainer = document.getElementById("cart-items-container");
 
-  function renderCart() {
-    const cartItems = storage.getCart();
+const emptyState = document.getElementById("cart-empty");
 
-    if (cartItems.length === 0) {
-      cartContent.classList.add("is-hidden");
-      emptyState.classList.remove("is-hidden");
-      return;
+const totalCountElement = document.getElementById("summary-total-count");
+
+const totalPriceElement = document.getElementById("summary-total-price");
+
+const checkoutButton = document.getElementById("checkout-button");
+
+createHeader();
+createFooter();
+
+const booksById = new Map(books.map((book) => [book.id, book]));
+
+function removeUnknownItems() {
+  const validItems = storage.getCart().filter((item) => booksById.has(item.id));
+
+  storage.saveCart(validItems);
+
+  return validItems;
+}
+
+function render() {
+  const items = removeUnknownItems();
+
+  const fragment = document.createDocumentFragment();
+
+  for (const item of items) {
+    const book = booksById.get(item.id);
+
+    if (!book) {
+      continue;
     }
 
-    emptyState.classList.add("is-hidden");
-    cartContent.classList.remove("is-hidden");
-
-    itemsContainer.innerHTML = cartItems
-      .map((item) => {
-        const book = books.find((b) => b.id === item.id);
-        return book ? ui.createCartItem(book, item.quantity) : "";
-      })
-      .join("");
-
-    const { totalCount, totalPrice } = cart.calculateTotals(books);
-    totalCountEl.textContent = `${totalCount} шт.`;
-    totalPriceEl.textContent = `${totalPrice} грн`;
+    fragment.append(ui.createCartItem(book, item.quantity));
   }
 
-  itemsContainer.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-action]");
-    if (!btn) return;
+  itemsContainer.replaceChildren(fragment);
 
-    const action = btn.dataset.action;
-    const id = Number(btn.dataset.id);
+  const totals = cart.calculateTotals(books);
 
-    if (action === "increase") {
-      cart.updateQuantity(id, 1);
-    } else if (action === "decrease") {
-      cart.updateQuantity(id, -1);
-    } else if (action === "remove") {
-      cart.removeItem(id);
-    }
+  totalCountElement.textContent = `${totals.totalCount} шт.`;
 
-    renderCart();
-  });
+  totalPriceElement.textContent = `${totals.totalPrice} грн`;
 
-  checkoutBtn.addEventListener("click", () => {
-    alert("Замовлення успішно оформлено!");
-    storage.clearCart();
-    ui.updateBadges();
-    renderCart();
-  });
+  const isEmpty = totals.totalCount === 0;
 
-  renderCart();
+  content.classList.toggle("is-hidden", isEmpty);
+
+  emptyState.classList.toggle("is-hidden", !isEmpty);
+
+  checkoutButton.disabled = isEmpty;
+
+  ui.updateBadges();
+}
+
+itemsContainer.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-action]");
+
+  if (!button) {
+    return;
+  }
+
+  const bookId = Number(button.dataset.id);
+
+  switch (button.dataset.action) {
+    case "increase":
+      cart.updateQuantity(bookId, 1);
+      break;
+
+    case "decrease":
+      cart.updateQuantity(bookId, -1);
+      break;
+
+    case "remove":
+      cart.removeItem(bookId);
+      break;
+
+    default:
+      return;
+  }
+
+  render();
 });
+
+checkoutButton.addEventListener("click", () => {
+  const totals = cart.calculateTotals(books);
+
+  if (totals.totalCount <= 0) {
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Оформити замовлення на ${totals.totalPrice} грн?`,
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  cart.clear();
+
+  render();
+
+  window.alert("Замовлення оформлено. Це демонстраційна версія магазину.");
+});
+
+render();

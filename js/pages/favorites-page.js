@@ -1,53 +1,66 @@
-import { renderFooter } from "../components/footer.js";
-import { renderHeader } from "../components/header.js";
 import { books } from "../data/books.js";
-import { storage } from "../modules/storage.js";
-import { favorites } from "../modules/favorites.js";
 import { cart } from "../modules/cart.js";
+import { favorites } from "../modules/favorites.js";
+import { storage } from "../modules/storage.js";
 import { ui } from "../modules/ui.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderHeader();
-  renderFooter();
+import { createHeader } from "../components/header.js";
+import { createFooter } from "../components/footer.js";
 
-  ui.updateBadges();
+const grid = document.getElementById("favorites-grid");
 
-  const grid = document.getElementById("favorites-grid");
-  const emptyState = document.getElementById("favorites-empty");
+const emptyState = document.getElementById("favorites-empty");
 
-  function renderFavorites() {
-    const favIds = storage.getFavorites();
-    const favBooks = books.filter((b) => favIds.includes(b.id));
+createHeader();
+createFooter();
 
-    if (favBooks.length === 0) {
-      grid.innerHTML = "";
-      emptyState.classList.remove("is-hidden");
-      return;
-    }
+function render() {
+  const favoriteIds = new Set(storage.getFavorites());
 
-    emptyState.classList.add("is-hidden");
-    grid.innerHTML = favBooks.map((book) => ui.createCard(book, true)).join("");
+  const favoriteBooks = books.filter((book) => favoriteIds.has(book.id));
+
+  const fragment = document.createDocumentFragment();
+
+  for (const book of favoriteBooks) {
+    fragment.append(ui.createCard(book, true));
   }
 
-  grid.addEventListener("click", (e) => {
-    const favBtn = e.target.closest("[data-fav-id]");
-    if (favBtn) {
-      const id = Number(favBtn.dataset.favId);
-      favorites.toggle(id);
-      renderFavorites();
+  grid.replaceChildren(fragment);
+
+  emptyState.classList.toggle("is-hidden", favoriteBooks.length !== 0);
+}
+
+grid.addEventListener("click", (event) => {
+  const favoriteButton = event.target.closest("[data-fav-id]");
+
+  if (favoriteButton) {
+    favorites.toggle(Number(favoriteButton.dataset.favId));
+
+    ui.updateBadges();
+    render();
+
+    return;
+  }
+
+  const cartButton = event.target.closest("[data-cart-id]");
+
+  if (cartButton) {
+    const bookId = Number(cartButton.dataset.cartId);
+
+    if (!cart.addItem(bookId)) {
       return;
     }
 
-    const cartBtn = e.target.closest("[data-cart-id]");
-    if (cartBtn) {
-      const id = Number(cartBtn.dataset.cartId);
-      cart.addItem(id);
-      cartBtn.textContent = "Додано ✓";
-      setTimeout(() => {
-        cartBtn.textContent = "В кошик";
-      }, 1000);
-    }
-  });
+    cartButton.disabled = true;
+    cartButton.textContent = "Додано ✓";
 
-  renderFavorites();
+    ui.updateBadges();
+
+    window.setTimeout(() => {
+      cartButton.disabled = false;
+      cartButton.textContent = "В кошик";
+    }, 700);
+  }
 });
+
+render();

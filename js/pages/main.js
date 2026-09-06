@@ -1,90 +1,189 @@
-import { renderFooter } from "../components/footer.js";
-import { renderHeader } from "../components/header.js";
 import { books } from "../data/books.js";
-import { search } from "../modules/search.js";
-import { filter } from "../modules/filter.js";
 import { cart } from "../modules/cart.js";
 import { favorites } from "../modules/favorites.js";
+import { filter } from "../modules/filter.js";
+import { search } from "../modules/search.js";
 import { ui } from "../modules/ui.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  renderHeader({ showSearch: true });
-  renderFooter();
+import { createHeader } from "../components/header.js";
+import { createFooter } from "../components/footer.js";
 
-  ui.updateBadges();
+const grid = document.getElementById("catalog-grid");
 
-  const grid = document.getElementById("catalog-grid");
-  const countEl = document.getElementById("catalog-count");
-  const emptyEl = document.getElementById("catalog-empty");
-  const searchInput = document.getElementById("search-input");
-  const filtersForm = document.getElementById("filters-form");
-  const sortSelect = document.getElementById("sort-select");
-  const priceMin = document.getElementById("price-min");
-  const priceMax = document.getElementById("price-max");
+const emptyState = document.getElementById("catalog-empty");
 
-  function render() {
-    const filterParams = {
-      minPrice: priceMin.value ? Number(priceMin.value) : null,
-      maxPrice: priceMax.value ? Number(priceMax.value) : null,
-      sort: sortSelect.value,
-    };
+const countElement = document.getElementById("catalog-count");
 
-    // Крок 1: Текстовий пошук
-    let processedBooks = search.byQuery(books, searchInput.value);
+const filtersForm = document.getElementById("filters-form");
 
-    // Крок 2: Фільтрація за ціною та сортування
-    processedBooks = filter.apply(processedBooks, filterParams);
+const sortSelect = document.getElementById("sort-select");
 
-    // Оновлення лічильника
-    countEl.textContent = `Знайдено: ${processedBooks.length}`;
+const priceMinInput = document.getElementById("price-min");
 
-    // Перевірка на порожній результат
-    if (processedBooks.length === 0) {
-      grid.innerHTML = "";
-      emptyEl.classList.remove("is-hidden");
-      return;
-    }
+const priceMaxInput = document.getElementById("price-max");
 
-    // Рендеринг карток
-    emptyEl.classList.add("is-hidden");
-    grid.innerHTML = processedBooks
-      .map((book) => ui.createCard(book, favorites.isFavorite(book.id)))
-      .join("");
+const priceError = document.getElementById("price-error");
+
+const header = createHeader();
+
+createFooter();
+
+function getPrice(value) {
+  if (value.trim() === "") {
+    return null;
   }
 
-  searchInput.addEventListener("input", render);
-  sortSelect.addEventListener("change", render);
-  priceMin.addEventListener("input", render);
-  priceMax.addEventListener("input", render);
+  const price = Number(value);
 
-  filtersForm.addEventListener("reset", () => {
-    setTimeout(render, 0);
+  if (!Number.isFinite(price) || price < 0) {
+    return null;
+  }
+
+  return price;
+}
+
+function showPriceError(message = "") {
+  priceError.textContent = message;
+
+  priceError.classList.toggle("is-hidden", !message);
+}
+
+function render() {
+  const query = header?.searchInput?.value ?? "";
+
+  const minPrice = getPrice(priceMinInput.value);
+
+  const maxPrice = getPrice(priceMaxInput.value);
+
+  const hasInvalidPrice =
+    (priceMinInput.value.trim() !== "" && minPrice === null) ||
+    (priceMaxInput.value.trim() !== "" && maxPrice === null);
+
+  const invalidRange =
+    minPrice !== null && maxPrice !== null && minPrice > maxPrice;
+
+  if (hasInvalidPrice) {
+    showPriceError("Вкажіть коректну ціну.");
+  } else if (invalidRange) {
+    showPriceError("Мінімальна ціна не може бути більшою за максимальну.");
+  } else {
+    showPriceError();
+  }
+
+  if (hasInvalidPrice || invalidRange) {
+    grid.replaceChildren();
+
+    emptyState.classList.remove("is-hidden");
+
+    emptyState.querySelector("p").textContent =
+      "Перевірте значення фільтра ціни.";
+
+    countElement.textContent = "Знайдено: 0";
+
+    return;
+  }
+
+  const searchedBooks = search.byQuery(books, query);
+
+  const filteredBooks = filter.apply(searchedBooks, {
+    minPrice,
+    maxPrice,
+    sort: sortSelect.value,
   });
 
-  grid.addEventListener("click", (e) => {
-    const favBtn = e.target.closest("[data-fav-id]");
-    if (favBtn) {
-      const id = Number(favBtn.dataset.favId);
-      const isFav = favorites.toggle(id);
-      favBtn.classList.toggle("is-active", isFav);
+  const fragment = document.createDocumentFragment();
 
-      const favImg = favBtn.querySelector(".card__favorite-icon");
-      if (favImg) {
-        favImg.src = isFav ? "img/icons/red_heart.png" : "img/icons/heart.png";
+  for (const book of filteredBooks) {
+    fragment.append(ui.createCard(book, favorites.isFavorite(book.id)));
+  }
+
+  grid.replaceChildren(fragment);
+
+  countElement.textContent = `Знайдено: ${filteredBooks.length}`;
+
+  emptyState.classList.toggle("is-hidden", filteredBooks.length !== 0);
+
+  if (filteredBooks.length === 0) {
+    emptyState.querySelector("p").textContent =
+      "За вашим запитом нічого не знайдено";
+  }
+}
+
+/*
+ * Favorite / cart actions
+ */
+
+grid.addEventListener("click", (event) => {
+  const favoriteButton = event.target.closest("[data-fav-id]");
+
+  if (favoriteButton) {
+    const bookId = Number(favoriteButton.dataset.favId);
+
+    const isFavorite = favorites.toggle(bookId);
+
+    favoriteButton.classList.toggle("is-active", isFavorite);
+
+    favoriteButton.setAttribute("aria-pressed", String(isFavorite));
+
+    const book = books.find((item) => item.id === bookId);
+
+    if (book) {
+      favoriteButton.setAttribute(
+        "aria-label",
+        isFavorite
+          ? `Видалити «${book.title}» з улюбленого`
+          : `Додати «${book.title}» до улюбленого`,
+      );
+
+      const icon = favoriteButton.querySelector("img");
+
+      if (icon) {
+        icon.src = isFavorite ? ui.icons.heartActive : ui.icons.heart;
       }
+    }
+
+    ui.updateBadges();
+
+    return;
+  }
+
+  const cartButton = event.target.closest("[data-cart-id]");
+
+  if (cartButton) {
+    const bookId = Number(cartButton.dataset.cartId);
+
+    if (!cart.addItem(bookId)) {
       return;
     }
 
-    const cartBtn = e.target.closest("[data-cart-id]");
-    if (cartBtn) {
-      const id = Number(cartBtn.dataset.cartId);
-      cart.addItem(id);
-      cartBtn.textContent = "Додано ✓";
-      setTimeout(() => {
-        cartBtn.textContent = "В кошик";
-      }, 1000);
-    }
-  });
+    cartButton.disabled = true;
+    cartButton.textContent = "Додано ✓";
 
-  render();
+    ui.updateBadges();
+
+    window.setTimeout(() => {
+      cartButton.disabled = false;
+      cartButton.textContent = "В кошик";
+    }, 700);
+  }
 });
+
+/*
+ * Search
+ */
+
+header?.searchInput?.addEventListener("input", render);
+
+/*
+ * Filters
+ */
+
+filtersForm.addEventListener("input", render);
+
+sortSelect.addEventListener("change", render);
+
+filtersForm.addEventListener("reset", () => {
+  window.requestAnimationFrame(render);
+});
+
+render();
